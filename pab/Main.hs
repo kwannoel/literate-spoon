@@ -90,4 +90,3 @@ handlers :: SimulatorEffectHandlers (Builtin StarterContracts)
 handlers =
     Simulator.mkSimulatorHandlers @(Builtin StarterContracts) [GameContract]
     $ interpret handleStarterContract
-

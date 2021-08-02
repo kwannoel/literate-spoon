@@ -36,6 +36,8 @@ module Plutus.Contracts.Game
     -- * Traces
     , guessTrace
     , lockTrace
+    -- * Extras for plutus-tx-compilation
+    , wrap
     ) where
 
 import           Control.Monad                  (void)
@@ -84,6 +86,9 @@ type GameSchema =
 validateGuess :: HashedString -> ClearString -> ScriptContext -> Bool
 validateGuess hs cs _ = isGoodGuess hs cs
 
+{-# INLINABLE wrap #-}
+wrap = Scripts.wrapValidator @HashedString @ClearString
+
 {-# INLINABLE isGoodGuess #-}
 isGoodGuess :: HashedString -> ClearString -> Bool
 isGoodGuess (HashedString actual) (ClearString guess') = actual == sha2_256 guess'
@@ -100,8 +105,9 @@ instance Scripts.ValidatorTypes Game where
 gameInstance :: Scripts.TypedValidator Game
 gameInstance = Scripts.mkTypedValidator @Game
     $$(PlutusTx.compile [|| validateGuess ||])
-    $$(PlutusTx.compile [|| wrap ||]) where
-        wrap = Scripts.wrapValidator @HashedString @ClearString
+    $$(PlutusTx.compile [|| wrap ||])
+        -- where
+            -- wrap = Scripts.wrapValidator @HashedString @ClearString
 
 -- create a data script for the guessing game by hashing the string
 -- and lifting the hash to its on-chain representation
